@@ -23,8 +23,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.input.MouseEvent;
 
 public class DroneInterface extends Application{
-    private int CanvasWidth = 400, CanvasHeight = 500;  // Sets the size of the canvas
+    private int CanvasWidth = 1000, CanvasHeight = 700;  // Sets the size of the canvas
     private MyCanvas mc;                                // Calls upon the canvas where system is drawn
+    private static DroneArena Arena;
 
     private void showMessage(String TStr, String CStr) { // Shows any message in the form of the title, then the message
         Alert alert = new Alert(AlertType.INFORMATION);
@@ -49,6 +50,11 @@ public class DroneInterface extends Application{
                 " to stop the animation.");
     }
 
+    private void viewCredits() {
+        showMessage( "Credits", "Drone Simulator 2020 (GUI Version)\n" +
+                "Produced and developed by Shavin Croos");
+    }
+
     MenuBar setMenu() {
         MenuBar menuBar = new MenuBar();		// create menu
 
@@ -69,7 +75,14 @@ public class DroneInterface extends Application{
                 viewHelp();				// show the help message
             }
         });
-        mInfo.getItems().addAll(mAbout, mHelp); 	// add submenus to Help
+        MenuItem mCredits = new MenuItem("Credits");
+        mCredits.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                viewCredits();				// show the help message
+            }
+        });
+        mInfo.getItems().addAll(mAbout, mHelp, mCredits); 	// add submenus to Help
 
         // now add File menu, which here only has Exit
         Menu mFile = new Menu("File");
@@ -87,7 +100,7 @@ public class DroneInterface extends Application{
     }
 
     public void start (Stage stagePrimary) throws Exception {
-        stagePrimary.setTitle("Drone Simulator 2020 (GUI version)");
+        stagePrimary.setTitle("27015244's Drone Simulator 2020 (GUI version)");
 
         BorderPane bp = new BorderPane();
 
@@ -95,6 +108,10 @@ public class DroneInterface extends Application{
 
         Group root = new Group();
         Canvas canvas = new Canvas(CanvasWidth, CanvasHeight);
+        root.getChildren().add(canvas);
+        mc = new MyCanvas(canvas.getGraphicsContext2D(), CanvasWidth, CanvasHeight);
+        Arena = new DroneArena(CanvasWidth,CanvasHeight);
+        mc.setFillColour(CanvasWidth, CanvasHeight);
 
         Button AddDrone_btn = new Button("INSERT DRONE");
         AddDrone_btn.setStyle("-fx-border-color: #000dff; -fx-border-width: 3px; " +
