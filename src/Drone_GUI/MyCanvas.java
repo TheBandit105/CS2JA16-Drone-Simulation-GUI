@@ -10,8 +10,9 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class MyCanvas extends Application {
-    int xCanvasSize = 512;				// constants for relevant sizes, default values set
-    int yCanvasSize = 512;
+    int canvasWidthSize = 512;				// constants for relevant sizes, default values set
+    int canvasHeightSize = 512;
+    Image hexadrone = new Image("Drone.png");
     GraphicsContext gc;
 
     /**
@@ -21,21 +22,21 @@ public class MyCanvas extends Application {
      */
     public MyCanvas(GraphicsContext g, int xcs, int ycs) {
         gc = g;
-        xCanvasSize = xcs;
-        yCanvasSize = ycs;
+        canvasWidthSize = xcs;
+        canvasHeightSize = ycs;
     }
 
     public int getXCanvasSize() {
-        return xCanvasSize;
+        return canvasWidthSize;
     }
     public int getYCanvasSize() {
-        return yCanvasSize;
+        return canvasHeightSize;
     }
     /**
      * clear the canvas
      */
     public void clearCanvas() {
-        gc.clearRect(0,  0,  xCanvasSize,  yCanvasSize);		// clear canvas
+        gc.clearRect(0,  0, canvasWidthSize, canvasHeightSize);		// clear canvas
     }
     /**
      * drawImage ... draws object defined by given image at position and size
