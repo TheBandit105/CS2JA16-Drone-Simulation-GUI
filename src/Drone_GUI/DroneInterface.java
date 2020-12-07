@@ -1,6 +1,7 @@
 package Drone_GUI;
 
 import javafx.application.Application;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -23,12 +24,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.input.MouseEvent;
 
 public class DroneInterface extends Application{
-    private int CanvasWidth = 1000, CanvasHeight = 700;  // Sets the size of the canvas
+    private int CanvasWidth = 800, CanvasHeight = 600;  // Sets the size of the canvas
     private MyCanvas mc;                                // Calls upon the canvas where system is drawn
     private static DroneArena Arena;
 
     private void showMessage(String TStr, String CStr) { // Shows any message in the form of the title, then the message
-        Alert alert = new Alert(AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(TStr);
         alert.setHeaderText(null);
         alert.setContentText(CStr);
@@ -99,26 +100,44 @@ public class DroneInterface extends Application{
         return menuBar;					// return the menu, so can be added
     }
 
+    public static void fillList(ListView<Drone> ListDrone){
+        //clear the list view
+        ListDrone.getItems().clear();
+        //loop through drones and add them to the list view
+        for (Drone d : Arena.numDrone)
+            ListDrone.getItems().add(d);
+
+
+    }
+
+    @Override
     public void start (Stage stagePrimary) throws Exception {
         stagePrimary.setTitle("27015244's Drone Simulator 2020 (GUI version)");
 
-        BorderPane bp = new BorderPane();
-
-        bp.setTop(setMenu());
-
         Group root = new Group();
-        Canvas canvas = new Canvas(CanvasWidth, CanvasHeight);
+        Canvas canvas = new Canvas(900, 500);
         root.getChildren().add(canvas);
         mc = new MyCanvas(canvas.getGraphicsContext2D(), CanvasWidth, CanvasHeight);
-        Arena = new DroneArena(CanvasWidth,CanvasHeight);
-        mc.setFillColour(CanvasWidth, CanvasHeight);
+        mc.setFillColour(900, 500);
 
-        Button AddDrone_btn = new Button("INSERT DRONE");
-        AddDrone_btn.setStyle("-fx-border-color: #000dff; -fx-border-width: 3px; " +
+        ListView<Drone> Vehicles = new ListView<>();
+
+        VBox numDroneList = new VBox();
+        numDroneList.getChildren().addAll(Vehicles);
+        numDroneList.setAlignment(Pos.CENTER);
+        numDroneList.setPadding(new Insets(0, 0, 0, 50));
+
+
+        Button insertDroneButton = new Button("INSERT DRONE");
+        insertDroneButton.setStyle("-fx-border-color: #000dff; -fx-border-width: 3px; " +
                 "-fx-font-size: 2em; -fx-text-fill: #000dff;");
 
-        AddDrone_btn.setMinSize(200, 50);
-        AddDrone_btn.setMaxSize(125, 50);
+        insertDroneButton.setOnAction(e -> {
+            Arena.addDrone(mc, Vehicles);
+        });
+
+        insertDroneButton.setMinSize(200, 50);
+        insertDroneButton.setMaxSize(125, 50);
 
         Button Start_btn = new Button("START");
         Start_btn.setStyle("-fx-border-color: #15c218; -fx-border-width: 3px; " +
@@ -138,8 +157,12 @@ public class DroneInterface extends Application{
         Buttons.setAlignment(Pos.CENTER);
         Buttons.setPadding(new Insets(0, 0, 50, 0));
 
-        Buttons.getChildren().addAll(AddDrone_btn, Start_btn, Stop_btn);
+        Buttons.getChildren().addAll(insertDroneButton, Start_btn, Stop_btn);
 
+        BorderPane bp = new BorderPane();
+        bp.setTop(setMenu());
+        bp.setRight(numDroneList);
+        bp.setCenter(root);
         bp.setBottom(Buttons);
 
         Scene scene = new Scene(bp, CanvasWidth * 1.5, CanvasHeight * 1.2);

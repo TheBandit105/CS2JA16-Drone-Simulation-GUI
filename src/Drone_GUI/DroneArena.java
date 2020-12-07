@@ -1,5 +1,7 @@
 package Drone_GUI;
 
+import javafx.scene.control.ListView;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -28,7 +30,7 @@ public class DroneArena {
     /* Drones added to the arena list until number of drones in
     list is the same as the given values of the arena dimensions
      */
-    public void addDrone() {
+    public void addDrone(MyCanvas mc, ListView<Drone> Vehicles) {
         int posX;
         int posY;
         if (numDrone.size() < (arenaWidth * arenaHeight)) {
@@ -37,9 +39,10 @@ public class DroneArena {
                 posY = randomCoords.nextInt(arenaHeight);
             } while (getDroneAt(posX, posY) != null);
 
-            Drone anyPlace = new Drone(posX, posY, Direction.getRandomDirection());
-            numDrone.add(anyPlace);
+            numDrone.add(new Drone (posX, posY, Direction.getRandomDirection()));
         }
+        mc.drawDrone(this);
+        DroneInterface.fillList(Vehicles);
     }
 
     /* --- GETTER FUNCTIONS ---- */
@@ -61,16 +64,6 @@ public class DroneArena {
        prints an error message stating arena is full on the interface
      */
 
-    public int arenaDroneNum() {
-        if (numDroneArena < (arenaWidth * arenaHeight)) {
-            numDroneArena++;
-        } else {
-            System.err.println("\nMaximum drone capacity reached!");
-        }
-        return numDroneArena;
-    }
-
-
     /* Checks if drone can move to given coordinates and checks if drone position might be out
     be out of arena boundaries*/
     public boolean canMoveHere(int x, int y) {
@@ -81,18 +74,14 @@ public class DroneArena {
         }
     }
 
-    // Shows all drones in the arena
-    public void showDrones(MyCanvas c) {
+    // Moves all the drones in the arena
+    public void moveAllDrones(MyCanvas mc) {
         for (Drone d : numDrone) {
-            d.displayDrone(c);
+            d.tryToMove(this);
         }
+        mc.canvasChanger(this);
     }
 
-    // Moves all the drones in the arena
-    public void moveAllDrones(DroneArena a) {
-        for (Drone d : numDrone)
-            d.tryToMove(a);
-    }
 
     // Checks the drone arraylist to see if there is a drone at the given coordinates
     public Drone getDroneAt(int x, int y) {
