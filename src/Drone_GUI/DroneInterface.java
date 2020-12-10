@@ -1,7 +1,22 @@
 package Drone_GUI;
 
+/**
+ * DroneInterface handles culminates all the features that are run by the other classes onto a single
+ * borderpane window to allow for a nicer graphical look and to ultimately use the GUI. Displays the arena, VBox to
+ * display the drones added and buttons to interact with the application.
+ *
+ * @author Shavin Croos
+ */
+
 import javafx.application.Application;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -12,23 +27,16 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.input.MouseEvent;
 
 public class DroneInterface extends Application{
-    private int CanvasWidth = 800, CanvasHeight = 600;  // Sets the size of the canvas
-    private MyCanvas mc;                                // Calls upon the canvas where system is drawn
+    private int CanvasWidth = 900, CanvasHeight = 600;
+    private MyCanvas mc;
     private static DroneArena Arena;
+    private static AnimationTimer time;
 
-    private void showMessage(String TStr, String CStr) { // Shows any message in the form of the title, then the message
+    private void showMessage(String TStr, String CStr) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(TStr);
         alert.setHeaderText(null);
@@ -36,7 +44,9 @@ public class DroneInterface extends Application{
         alert.showAndWait();
     }
 
-    // Shows About box, with information about the simulator
+    /**
+     * Function to show the details about the program.
+     */
     private void viewAbout() {
         showMessage("About", "Drone Simulator 2020 (GUI version)." + "\n" +
                 "Based of the console version and developed by Shavin Croos." + "\n" +
@@ -44,26 +54,35 @@ public class DroneInterface extends Application{
                 " in the form of an animation. ");
     }
 
-    // Shows Help box, with information on how to use the simulator
+    /**
+     * Function to show how to use the program.
+     */
     private void viewHelp() {
-        showMessage( "Help", "Click 'INSERT DRONE' to randomly add a drone to your arena. " + "\n" +
+        showMessage("Help", "Click 'INSERT DRONE' to randomly add a drone to your arena. " + "\n" +
                 "Press 'START' to watch the drones move about in the arena and then press 'STOP' when you want" +
                 " to stop the animation.");
     }
+
+    /**
+     * Function to show the credits.
+     */
 
     private void viewCredits() {
         showMessage( "Credits", "Drone Simulator 2020 (GUI Version)\n" +
                 "Produced and developed by Shavin Croos");
     }
 
-    MenuBar setMenu() {
+    /**
+     * Function to set up the menu
+     */
+    public MenuBar setMenu() {
         MenuBar menuBar = new MenuBar();		// create menu
 
-        Menu mInfo = new Menu("Info");			// have entry for help
-        // then add sub menus for About and Help
+        Menu mInfo = new Menu("Info");			// have entry for Info
+        // then add sub menus for About, Help and Credits
         // add the item and then the action to perform
         MenuItem mAbout = new MenuItem("About");
-        mAbout.setOnAction(new EventHandler<ActionEvent>() {
+        mAbout.setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent actionEvent) {
                 viewAbout();				// show the about message
@@ -80,99 +99,209 @@ public class DroneInterface extends Application{
         mCredits.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                viewCredits();				// show the help message
+                viewCredits();				// show the credits message
             }
         });
-        mInfo.getItems().addAll(mAbout, mHelp, mCredits); 	// add submenus to Help
+        mInfo.getItems().addAll(mAbout, mHelp, mCredits); 	// add submenu to Info
 
         // now add File menu, which here only has Exit
-        Menu mFile = new Menu("File");
-        MenuItem mExit = new MenuItem("Exit");
+        Menu mFile = new Menu("File");				// create File Menu
+        MenuItem mExit = new MenuItem("Exit");		// and Exit submenu
         mExit.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent t) {
+            public void handle(ActionEvent t) {		// and add handler
                 System.exit(0);						// quit program
             }
         });
-        mFile.getItems().addAll(mExit);
+        mFile.getItems().addAll(mExit);	// add Exit submenu to File
 
-        menuBar.getMenus().addAll(mFile, mInfo);	// menu has File and Help
+        menuBar.getMenus().addAll(mFile, mInfo);	// menu has File and Info
 
         return menuBar;					// return the menu, so can be added
     }
 
-    public static void fillList(ListView<Drone> ListDrone){
+    /**
+     * Function to add the drones to list and display the info on their initial positions
+     * when first placed.
+     * @param DroneGroup
+     */
+    public static void listDrones(ListView<Drone> DroneGroup){
         //clear the list view
-        ListDrone.getItems().clear();
-        //loop through drones and add them to the list view
+        DroneGroup.getItems().clear();
+        //checks over the drones in the list and adds them to the list view
         for (Drone d : Arena.numDrone)
-            ListDrone.getItems().add(d);
-
-
+            DroneGroup.getItems().add(d);
     }
 
-    @Override
-    public void start (Stage stagePrimary) throws Exception {
+    /**
+     * Creates the stage for the application, so that all the features will be displayed on
+     * the window upon execution.
+     * @param stagePrimary
+     * @throws Exception
+     */
+    public void start(Stage stagePrimary) throws Exception  {
         stagePrimary.setTitle("27015244's Drone Simulator 2020 (GUI version)");
 
-        Group root = new Group();
+        Text Title = new Text("THE ARENA");
+        Title.setX(375);
+        Title.setY(-10);
+        Title.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 27));
+        Title.setFill(Color.ORANGE);
+        Title.setStrokeWidth(1.25);
+        Title.setStroke(Color.DARKGREEN);
+
+        Group root = new Group(Title);
+        //setting canvas details and adding it to the stage, with the title added
         Canvas canvas = new Canvas(900, 500);
         root.getChildren().add(canvas);
+        //creating the canvas using the x and y and adding the drone arena
+
         mc = new MyCanvas(canvas.getGraphicsContext2D(), CanvasWidth, CanvasHeight);
-        mc.setFillColour(900, 500);
+        Arena = new DroneArena(900, 500);
+        mc.setFillArenaColour(CanvasWidth, CanvasHeight);
 
+        //timer used to start and stop the movements of all drones added
+        time = new AnimationTimer() {
+            public void handle(long now) {
+                //will stop or start the moveAllDrones function
+                Arena.moveAllDrones(mc);
+
+            }
+        };
+
+        //List View Drone contains variables 'Vehicles'
         ListView<Drone> Vehicles = new ListView<>();
+        Vehicles.setStyle(
+                "-fx-border-color: #00ff6a;" +
+                "-fx-border-width: 10px;");
 
-        VBox numDroneList = new VBox();
-        numDroneList.getChildren().addAll(Vehicles);
-        numDroneList.setAlignment(Pos.CENTER);
-        numDroneList.setPadding(new Insets(0, 0, 0, 50));
+        //vbList positioning and formatiing are determined here, with a title on top for the list.
+        Text text = new Text("Active drones: ");
+        text.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 27));
+        text.setFill(Color.GOLD);
+        text.setStrokeWidth(1.25);
+        text.setStroke(Color.BLUE);
 
+        VBox vbList = new VBox(text);
+        vbList.getChildren().addAll(Vehicles);
+        vbList.setAlignment(Pos.CENTER);
+        vbList.setPadding(new Insets(0, 0, 0, 50));
 
-        Button insertDroneButton = new Button("INSERT DRONE");
-        insertDroneButton.setStyle("-fx-border-color: #000dff; -fx-border-width: 3px; " +
-                "-fx-font-size: 2em; -fx-text-fill: #000dff;");
+        //Adds image to button
+        Image addr = new Image("plus.png");
+        ImageView viewInsert = new ImageView(addr);
+        viewInsert.setFitHeight(40);
+        viewInsert.setFitWidth(40);
+
+        //formatted button to add a drone in a random place in the arena.
+        Button insertDroneButton = new Button("INSERT DRONE", viewInsert);
+        insertDroneButton.setStyle(
+                "-fx-border-color: #000dff; " +
+                        "-fx-border-width: 3px; " +
+                        "-fx-font-size: 2em; " +
+                        "-fx-text-fill: #000dff;" +
+                "-fx-background-color: #ffffff;");
 
         insertDroneButton.setOnAction(e -> {
+            //drone added to arena using my canvas functions and 'Vehicles' variable
             Arena.addDrone(mc, Vehicles);
         });
 
-        insertDroneButton.setMinSize(200, 50);
+        //Determining button size
+        insertDroneButton.setMinSize(229, 50);
         insertDroneButton.setMaxSize(125, 50);
 
-        Button Start_btn = new Button("START");
-        Start_btn.setStyle("-fx-border-color: #15c218; -fx-border-width: 3px; " +
-                "-fx-font-size: 2em; -fx-text-fill: #15c218;");
+        Image start = new Image("go.jpg");
+        ImageView viewStart = new ImageView(start);
+        viewStart.setFitHeight(40);
+        viewStart.setFitWidth(40);
 
-        Start_btn.setMinSize(125, 50);
-        Start_btn.setMaxSize(125, 50);
+        //start button to start animation
+        Button MoveDronesButton = new Button("START", viewStart);
+        MoveDronesButton.setStyle(
+                "-fx-border-color: #15c218; " +
+                        "-fx-border-width: 3px; " +
+                        "-fx-font-size: 2em;" +
+                        "-fx-text-fill: #008523;"+
+                        "-fx-background-color: #ffffff;");
 
-        Button Stop_btn = new Button("STOP");
-        Stop_btn.setStyle("-fx-border-color: #ff0000; -fx-border-width: 3px; " +
-                "-fx-font-size: 2em; -fx-text-fill: #ff0000;");
+        //starts timer and calls the moveAllDrones method to move drones
+        MoveDronesButton.setOnAction(e -> time.start());
 
-        Stop_btn.setMinSize(125, 50);
-        Stop_btn.setMaxSize(125, 50);
+        MoveDronesButton.setMinSize(135, 50);
+        MoveDronesButton.setMaxSize(125, 50);
 
-        HBox Buttons = new HBox(20);
-        Buttons.setAlignment(Pos.CENTER);
-        Buttons.setPadding(new Insets(0, 0, 50, 0));
+        Image stop = new Image("stop.jpg");
+        ImageView viewStop = new ImageView(stop);
+        viewStop.setFitHeight(40);
+        viewStop.setFitWidth(40);
 
-        Buttons.getChildren().addAll(insertDroneButton, Start_btn, Stop_btn);
+        //stop button to stop animation
+        Button DroneStopMove = new Button("STOP", viewStop);
+        DroneStopMove.setStyle(
+                "-fx-border-color: #ff0000; " +
+                        "-fx-border-width: 3px; " +
+                        "-fx-font-size: 2em; " +
+                        "-fx-text-fill: #ff0000;" +
+                        "-fx-background-color: #ffffff;");
 
-        BorderPane bp = new BorderPane();
+        //stops timer and calls the moveAllDrones method to stop all drone movement
+        DroneStopMove.setOnAction(e -> time.stop());
+
+        DroneStopMove.setMinSize(125, 50);
+        DroneStopMove.setMaxSize(125, 50);
+
+        Image arrow = new Image("Simpleicons_Interface_arrow-of-double-point-in-diagonal.svg.png");
+        ImageView viewArrow = new ImageView(arrow);
+        viewArrow.setFitHeight(34);
+        viewArrow.setFitWidth(34);
+
+        //opens a info box giving the user the details about the arena and number of drones inside
+        Button ArenaDim = new Button(" ARENA STATS", viewArrow);
+        ArenaDim.setStyle(
+                "-fx-border-color: #d98f18; " +
+                        "-fx-border-width: 3px; " +
+                        "-fx-font-size: 2.102em; " +
+                        "-fx-text-fill: #d98f18;" +
+                        "-fx-background-color: #ffffff;"
+        );
+
+        ArenaDim.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                showMessage("Arena Dimensions", Arena.toString()); //shows arena stats
+            }
+        });
+
+        //sets padding and formatting for console
+        HBox hbButtons = new HBox(20);
+        hbButtons.setAlignment(Pos.CENTER_RIGHT);
+        hbButtons.setPadding(new Insets(0, 160, 50, 0));
+
+        //adds all button to the console
+        hbButtons.getChildren().addAll(insertDroneButton, MoveDronesButton, DroneStopMove, ArenaDim);
+
+        //creates borderpane
+
+        BorderPane bp = new BorderPane(); // New borderpane to store all
+        // features
+        //formats borderpane inserting the aforementioned items in certain areas of screen
         bp.setTop(setMenu());
-        bp.setRight(numDroneList);
         bp.setCenter(root);
-        bp.setBottom(Buttons);
+        bp.setBottom(hbButtons);
+        bp.setLeft(vbList);
 
-        Scene scene = new Scene(bp, CanvasWidth * 1.5, CanvasHeight * 1.2);
+        // Set the scene with the borderpane, which is bigger than the arena size
+        Scene scene = new Scene(bp, 1400, 700);
 
-        stagePrimary.setScene(scene);
+        stagePrimary.setScene(scene); // Put the scene in the window
         stagePrimary.show();
     }
 
+    /**
+     * Launches the application.
+     * @param args
+     */
     public static void main(String[] args) {
         Application.launch(args);
     }
-
 }
