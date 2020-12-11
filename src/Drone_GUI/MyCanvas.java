@@ -10,6 +10,7 @@ import javafx.stage.Stage;
  * MyCanvas will contain info based on drone images and canvas size
  * @author Shavin Croos
  */
+
 public class MyCanvas extends Application {
     //variables and declarations related to the file
     int canvasWidthSize; // constants for relevant sizes, default values set
@@ -17,6 +18,7 @@ public class MyCanvas extends Application {
     //Images loaded in at the start
     Image droneVehicle = new Image("Drone.png");
     GraphicsContext gc;
+
 
     /**
      * constructor for canvas
